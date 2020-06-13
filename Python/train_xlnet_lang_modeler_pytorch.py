@@ -8,9 +8,9 @@ import json
 from dataloaders.chunked_text_dataloader import ChunkedTextDataset
 from tqdm import tqdm
 
-fp16 = True
-if fp16:
-    from apex import amp
+# fp16 = True
+# if fp16:
+#     from apex import amp
 
 
 class Trainer:
@@ -290,7 +290,16 @@ if __name__ == "__main__":
         default=".",
         help="Directory where checkpoints saves will be made.",
     )
+    parser.add_argument(
+        "--is_fp16",
+        type=bool,
+        default= False,
+        help="Directory where checkpoints saves will be made.",
+    )
     args = parser.parse_args()
+    fp16 = args.is_fp16
+    if fp16:
+        from apex import amp
 
     project_name = args.project_name
     epochs = args.epochs
@@ -339,7 +348,8 @@ if __name__ == "__main__":
     # Initialize w&b logger
     do_wandb = True
     if do_wandb:
-        wandb.init(project=project_name, name=run_name, config=chunked_model_config)
+        print('{}'.format(project_name))
+        wandb.init(project=project_name, name=run_name, config=chunked_model_config,entity='williamyang')
         # There's something bugged about this, but it doesnt really seem to do much anyways. Apparently it enables some
         # sort of gradient exploration map.
         # wandb.watch(model)
