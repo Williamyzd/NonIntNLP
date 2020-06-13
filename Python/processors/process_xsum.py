@@ -5,6 +5,7 @@ import random
 import torch
 import argparse
 import json
+import pandas as pd
 
 # This function processes news articles gathered and preprocessed by the XSum data processor:
 # https://github.com/EdinburghNLP/XSum
@@ -100,8 +101,12 @@ def map_tokenize_news(processed):
         "text": torch.tensor(text_enc, dtype=torch.long),
         "target": torch.tensor(title_enc, dtype=torch.long),
     }
-
-
+def fix_json(path):
+    data = pd.read_json(input,lines=True)
+    data.rename(columns={'article':'text','summarization':'summary'},inplace=True)
+    out =os.path.abspath(os.path.dirname(path))+ '/input.json'
+    data.to_json(out,orient='records',force_ascii=False)
+    return out
 if __name__ == "__main__":
 
     os.chdir(folder)
@@ -114,7 +119,8 @@ if __name__ == "__main__":
     # MAP: [single list of shuffled news] => map_tokenize_news
     # REDUCE: [tokenized results] => [single list of tokenized results]
     print("Reading from files..")
-    with open(input_path) as f:
+    in_file = fix_json(input_path)
+    with open(in_file) as f:
         all_texts = json.load(f)
     all_texts = [m for m in all_texts if m is not None]
 

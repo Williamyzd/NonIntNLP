@@ -290,16 +290,15 @@ if __name__ == "__main__":
         default=".",
         help="Directory where checkpoints saves will be made.",
     )
-    parser.add_argument(
-        "--is_fp16",
-        type=bool,
-        default= False,
-        help="Directory where checkpoints saves will be made.",
-    )
+    # parser.add_argument(
+    #     "--is_fp16",
+    #     type=bool,
+    #     default= False,
+    #     help="Directory where checkpoints saves will be made.",
+    # )
     args = parser.parse_args()
-    fp16 = args.is_fp16
-    if fp16:
-        from apex import amp
+    print('-------------')
+    print(parser.parse_args())
 
     project_name = args.project_name
     epochs = args.epochs
@@ -309,10 +308,14 @@ if __name__ == "__main__":
     input_folder = args.input_folder
     torch_device_name = args.device
     start_lr = args.start_lr
+    if torch_device_name =='cuda':
+        fp16 = True
+        from apex import amp
     run_name = project_name + str(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
 
     chunked_model_config = {
-        "name": run_name,
+        'wb_project':project_name,
+        "run_name": run_name,
         "max_seq_len": args.seq_sz,
         "model_name": args.model_name,
         "predict_len": args.max_predict_sz,
