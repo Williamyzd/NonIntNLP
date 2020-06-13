@@ -5,6 +5,7 @@ import time
 import os
 import argparse
 import json
+import datetime
 from dataloaders.chunked_text_dataloader import ChunkedTextDataset
 from tqdm import tqdm
 
@@ -232,7 +233,6 @@ class Trainer:
 
 
 if __name__ == "__main__":
-    run_name = input("Enter a name for this run..")
 
     # Process command line flags
     parser = argparse.ArgumentParser(
@@ -308,8 +308,8 @@ if __name__ == "__main__":
     assert aggregate_batch_size % batch_size == 0
     input_folder = args.input_folder
     torch_device_name = args.device
-
     start_lr = args.start_lr
+    run_name = project_name + str(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
 
     chunked_model_config = {
         "name": run_name,
