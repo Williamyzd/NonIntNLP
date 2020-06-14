@@ -5,7 +5,6 @@ import random
 import torch
 import argparse
 import json
-import pandas as pd
 
 # This function processes news articles gathered and preprocessed by the XSum data processor:
 # https://github.com/EdinburghNLP/XSum
