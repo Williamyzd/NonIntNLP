@@ -8,10 +8,11 @@ import json
 import datetime
 from dataloaders.chunked_text_dataloader import ChunkedTextDataset
 from tqdm import tqdm
+import config
 
-# fp16 = True
-# if fp16:
-#     from apex import amp
+fp16 = False
+if fp16:
+    from apex import amp
 
 
 class Trainer:
@@ -197,7 +198,7 @@ class Trainer:
                 _logs = {
                     "avg_chunks": _chunks / _logging_steps,
                     "loss": _loss_scalar,
-                    "learning_rate": self.scheduler.get_lr()[0],
+                    "learning_rate": self.scheduler.get_last_lr()[0],
                     "optimizer_steps": _optimizer_steps,
                 }
                 _chunks = 0
@@ -241,53 +242,54 @@ if __name__ == "__main__":
     parser.add_argument(
         "--project_name",
         type=str,
-        default="nonint-transformers-torch",
+        default=config.project_name,
         help="Project name for wandb",
     )
-    parser.add_argument("--batch_sz", type=int, default=3, help="Batch size")
+    parser.add_argument("--batch_sz", type=int, default=config.batch_sz, help="Batch size")
     parser.add_argument(
         "--aggregate_batch_sz",
         type=int,
-        default=3,
+        default=config.aggregate_batch_sz,
         help="Batches are accumulated to this number before optimizer.step() is called. Must be a multiple of batch_sz.",
     )
     parser.add_argument(
-        "--seq_sz", type=int, default=256, help="Sequence size to be fed into the model"
+        "--seq_sz", type=int, default=config.seq_sz, help="Sequence size to be fed into the model"
     )
     parser.add_argument(
         "--max_predict_sz",
         type=int,
-        default=32,
+        default=config.max_predict_sz,
         help="Max sequence size of the predicted sequence",
     )
     parser.add_argument(
         "--model_name",
         type=str,
-        default="xlnet-base-cased",
+        default=config.pre_model_name,
         help="Transformers pre-trained model to start with",
     )
     parser.add_argument(
         "--epochs",
         type=int,
-        default=1,
+        default=config.epochs,
         help="Number of epochs to train dataset against.",
     )
     parser.add_argument(
         "--input_folder",
         type=str,
-        required=True,
+        required=False,
+        default=config.input_data_dir,
         help="Where to find train.pt and val.pt datasets.",
     )
     parser.add_argument(
-        "--device", type=str, default="cuda", help="PyTorch device name to run on."
+        "--device", type=str, default=config.device, help="PyTorch device name to run on."
     )
     parser.add_argument(
-        "--start_lr", type=float, default=2e-5, help="Learning rate to start at."
+        "--start_lr", type=float, default=config.start_lr, help="Learning rate to start at."
     )
     parser.add_argument(
         "--output_dir",
         type=str,
-        default=".",
+        default=config.out_put_dir,
         help="Directory where checkpoints saves will be made.",
     )
     # parser.add_argument(
@@ -308,9 +310,9 @@ if __name__ == "__main__":
     input_folder = args.input_folder
     torch_device_name = args.device
     start_lr = args.start_lr
-    if torch_device_name =='cuda':
-        fp16 = True
-        from apex import amp
+    # if torch_device_name =='cuda':
+    #     fp16 = True
+    #     from apex import amp
     run_name = project_name + str(datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S'))
 
     chunked_model_config = {
@@ -338,6 +340,7 @@ if __name__ == "__main__":
         chunked_model_config["predict_len"],
         pad_left=True,
     )
+    print("*** Loading data.. end***")
     val_set = ChunkedTextDataset(
         os.path.join(input_folder, "val.pt"),
         tokenizer,
@@ -345,6 +348,7 @@ if __name__ == "__main__":
         chunked_model_config["predict_len"],
         pad_left=True,
     )
+
     train_loader = train_set.get_dataloader(batch_size, num_workers=0)
     val_loader = val_set.get_dataloader(batch_size, num_workers=0, random=False)
 

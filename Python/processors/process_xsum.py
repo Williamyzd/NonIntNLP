@@ -118,8 +118,8 @@ if __name__ == "__main__":
     # MAP: [single list of shuffled news] => map_tokenize_news
     # REDUCE: [tokenized results] => [single list of tokenized results]
     print("Reading from files..")
-    in_file = fix_json(input_path)
-    with open(in_file) as f:
+    # in_file = fix_json(input_path)
+    with open(input_path) as f:
         all_texts = json.load(f)
     all_texts = [m for m in all_texts if m is not None]
 

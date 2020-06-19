@@ -39,7 +39,9 @@ class ChunkedTextDataset(Dataset):
         self.max_chunk_len = max_chunk_len
         self.max_gen_len = max_gen_len
         self.pad_left = pad_left
+        print('torch.load')
         self.raw_data = torch.load(data_file)
+        print('torch.load end')
         self.raw_data.sort(key=lambda x: x["text"].shape[0])
 
     def process_element(self, text, target):
@@ -322,7 +324,7 @@ def test_against_real_file(test_file, tokenizer):
 
 if __name__ == "__main__":
     from fluentcheck import Check
-
+    print('xlnet-base-cased')
     tokenizer = transformers.XLNetTokenizer.from_pretrained("xlnet-base-cased")
 
     # Provided for testing.
